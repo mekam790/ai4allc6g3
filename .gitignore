@@ -1,2 +1,6 @@
 # ignore ALL .csv files
 *.csv
+
+# ignore all files related to the virtual environment
+share/
+bin/
