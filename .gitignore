@@ -6,3 +6,4 @@ share/
 bin/
 etc/
 lib/
+lib/python3.11/site-packages/pandas/core/methods/__pycache__/to_dict.cpython-311.pyc
