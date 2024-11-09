@@ -3,56 +3,71 @@
 # import string
 # import nltk
 # from nltk.corpus import stopwords
-# from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+# from sklearn.feature_extraction.text import TfidfVectorizer
 # from sklearn.model_selection import train_test_split
-# from sklearn.linear_model import LogisticRegression
+# from sklearn.ensemble import RandomForestClassifier
 # from sklearn.metrics import accuracy_score, classification_report
-
-# from nltk.tokenize import word_tokenize
 # from nltk.stem import WordNetLemmatizer
-# from nltk.util import ngrams
-# from collections import Counter
-# import seaborn as sns
-# import matplotlib.pyplot as plt
-# from nltk.stem.snowball import SnowballStemmer
+# import joblib
+# import os  
 
 # nltk.download('stopwords')
 # nltk.download('wordnet')
 # nltk.download('punkt')
-# nltk.download('punkt_tab')
 
-# news_df = pd.read_csv("news_dataset.csv")
-# news_df.shape
+# def text_preprocessing(article, stop_words, lemmatizer):
+#     """
+#     Cleans the article text by removing punctuation and stopwords, and applying lemmatization.
+#     """
+#     article = ''.join([char for char in article if char not in string.punctuation]) 
+#     article = ' '.join([lemmatizer.lemmatize(word) for word in article.split() if word not in stop_words])  
+#     return article
 
-# snowballStem = SnowballStemmer(language="english")
-# stop_words = stopwords.words('english')
-# lemmatizer = WordNetLemmatizer()
+# def train_and_predict():
+#     news_df = pd.read_csv("/Users/rishika/ai4allc6g3/news_dataset.csv")
+#     stop_words = stopwords.words('english')
+#     lemmatizer = WordNetLemmatizer()
+    
+#     news_df['Articles'] = news_df['Articles'].str.lower()  
+#     news_df['Cleaned_Article'] = news_df['Articles'].apply(text_preprocessing, stop_words=stop_words, lemmatizer=lemmatizer)
 
-# # Convert all articles to lowercase
-# news_df['Articles'] = [article.lower()for article in news_df["Articles"]]
-# news_df['Articles'].iloc[:5]
+#     news_df.loc[news_df["Labels"] == "fake", "Labels"] = 1
+#     news_df.loc[news_df["Labels"] == "real", "Labels"] = 0
+#     news_df = news_df.rename(columns={'Labels': 'Fake', 'Articles': 'Article'})
+#     news_df["Fake"] = news_df["Fake"].astype(int)
 
-# # Filter the articles to only political articles
-# filtered_df = news_df[news_df["Articles"].str.contains(""" election|
-#              campaign| vote| ballot| voting| polling| candidate| nominee| politician|
-#              leader| opposition| incumbent| poll| polling| approval rating|
-#              electorate| conservative| liberal| democrat| republican| left-wing|
-#              right-wing| centrist| far-right| far-left| populist|
-#              governor| mayor| senator| representative| joe biden| bernie sanders|
-#              elizabeth warren| pete buttigieg| andrew yang| tulsi gabbard|
-#              kamala harris""", case=False)]
+#     vectorizer = TfidfVectorizer(max_features=5000)
+#     X = vectorizer.fit_transform(news_df["Cleaned_Article"]).toarray()
+#     y = news_df["Fake"]
+    
+#     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-# # Clean the labels column into fake (AI generated) versus not fake (human generated)
-# filtered_df.reset_index(drop=True, inplace=True)
-# filtered_df.loc[filtered_df["Labels"] == "fake", "Labels"] = 1
-# filtered_df.loc[filtered_df["Labels"] == "real", "Labels"] = 0
-# filtered_df = filtered_df.rename(columns={'Labels': 'Fake', 'Articles':'Article'})
-# filtered_df["Fake"] = filtered_df["Fake"].astype(int)
-# print(f'The shape of the filtered data frame is: {filtered_df.shape}')
-# print (f"Number of real articles {filtered_df.shape[0] - sum(filtered_df['Fake'])}")
-# print (f"Number of AI generated articles {sum(filtered_df['Fake'])}")
+#     rf_classifier = RandomForestClassifier(n_estimators=100, random_state=42)
+#     rf_classifier.fit(X_train, y_train)
+    
+#     y_pred = rf_classifier.predict(X_test)
+#     accuracy = accuracy_score(y_test, y_pred)
+#     report = classification_report(y_test, y_pred)
+    
+#     feature_importances = rf_classifier.feature_importances_
+#     importance_df = pd.DataFrame({
+#         'Keyword': vectorizer.get_feature_names_out(),
+#         'Importance': feature_importances
+#     }).sort_values(by='Importance', ascending=False).head(20)
 
-# randomForestModel.py
+#     model_path = 'random_forest_model.pkl'
+#     vectorizer_path = 'tfidf_vectorizer.pkl'
+
+#     os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    
+#     joblib.dump(rf_classifier, model_path)
+#     joblib.dump(vectorizer, vectorizer_path)
+
+#     print(f"Saved model at: {model_path}")
+#     print(f"Saved vectorizer at: {vectorizer_path}")
+    
+#     return rf_classifier, accuracy, report, importance_df
+
 
 import pandas as pd
 import numpy as np
@@ -64,6 +79,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 from nltk.stem import WordNetLemmatizer
+import joblib
+import os  
 
 nltk.download('stopwords')
 nltk.download('wordnet')
@@ -77,39 +94,61 @@ def text_preprocessing(article, stop_words, lemmatizer):
     article = ' '.join([lemmatizer.lemmatize(word) for word in article.split() if word not in stop_words])  
     return article
 
-def train_and_predict(news_df):
-    stop_words = stopwords.words('english')
-    lemmatizer = WordNetLemmatizer()
+news_df = pd.read_csv("/Users/rishika/ai4allc6g3/news_dataset.csv")
     
-    news_df['Articles'] = news_df['Articles'].str.lower()  
-    news_df['Cleaned_Article'] = news_df['Articles'].apply(text_preprocessing, stop_words=stop_words, lemmatizer=lemmatizer)
-
-    news_df.loc[news_df["Labels"] == "fake", "Labels"] = 1
-    news_df.loc[news_df["Labels"] == "real", "Labels"] = 0
-    news_df = news_df.rename(columns={'Labels': 'Fake', 'Articles': 'Article'})
-    news_df["Fake"] = news_df["Fake"].astype(int)
-
-    vectorizer = TfidfVectorizer(max_features=5000)
-    X = vectorizer.fit_transform(news_df["Cleaned_Article"]).toarray()
-    y = news_df["Fake"]
+stop_words = stopwords.words('english')
+lemmatizer = WordNetLemmatizer()
     
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+news_df['Articles'] = news_df['Articles'].str.lower()  
+news_df['Cleaned_Article'] = news_df['Articles'].apply(text_preprocessing, stop_words=stop_words, lemmatizer=lemmatizer)
 
-    rf_classifier = RandomForestClassifier(n_estimators=100, random_state=42)
-    rf_classifier.fit(X_train, y_train)
+news_df.loc[news_df["Labels"] == "fake", "Labels"] = 1
+news_df.loc[news_df["Labels"] == "real", "Labels"] = 0
+news_df = news_df.rename(columns={'Labels': 'Fake', 'Articles': 'Article'})
+news_df["Fake"] = news_df["Fake"].astype(int)
+
+vectorizer = TfidfVectorizer(max_features=5000)
+X = vectorizer.fit_transform(news_df["Cleaned_Article"]).toarray()
+y = news_df["Fake"]
     
-    y_pred = rf_classifier.predict(X_test)
-    accuracy = accuracy_score(y_test, y_pred)
-    report = classification_report(y_test, y_pred)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+rf_classifier = RandomForestClassifier(n_estimators=100, random_state=42)
+rf_classifier.fit(X_train, y_train)
     
-    feature_importances = rf_classifier.feature_importances_
-    importance_df = pd.DataFrame({
-        'Keyword': vectorizer.get_feature_names_out(),
-        'Importance': feature_importances
-    }).sort_values(by='Importance', ascending=False).head(20)
+y_pred = rf_classifier.predict(X_test)
+accuracy = accuracy_score(y_test, y_pred)
+report = classification_report(y_test, y_pred)
+    
+feature_importances = rf_classifier.feature_importances_
+importance_df = pd.DataFrame({
+    'Keyword': vectorizer.get_feature_names_out(),
+    'Importance': feature_importances
+}).sort_values(by='Importance', ascending=False).head(20)
 
-    return rf_classifier, accuracy, report, importance_df
+model_dir = "models"
+os.makedirs(model_dir, exist_ok=True)
+
+model_path = os.path.join(model_dir, 'random_forest_model.pkl')
+vectorizer_path = os.path.join(model_dir, 'tfidf_vectorizer.pkl')
+
+joblib.dump(rf_classifier, model_path)
+joblib.dump(vectorizer, vectorizer_path)
+print(f"Saved model at: {model_path}")
+print(f"Saved vectorizer at: {vectorizer_path}")
+    
+    # return rf_classifier, accuracy, report, importance_df
+
+# model, accuracy, report, importance = train_and_predict()
+# print(f"Accuracy: {accuracy}")
+# print("Classification Report:")
+# print(report)
+# print("Top 20 Important Features:")
+# print(importance)
 
 
 
 
+
+
+    
