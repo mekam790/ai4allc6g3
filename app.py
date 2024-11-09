@@ -59,8 +59,8 @@ nltk.download('wordnet')
 lemmatizer = WordNetLemmatizer()
 stop_words = stopwords.words('english')
 
-model = joblib.load('/Users/rishika/ai4allc6g3/models/random_forest_model.pkl')
-vectorizer = joblib.load('/Users/rishika/ai4allc6g3/models/tfidf_vectorizer.pkl')
+model = joblib.load('models/random_forest_model.pkl')
+vectorizer = joblib.load('models/tfidf_vectorizer.pkl')
 
 st.title("Fake/Real News Classifier")
 st.write("This is a simple app to classify news articles as fake or real using a pre-trained Random Forest model.")

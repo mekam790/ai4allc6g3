@@ -94,7 +94,7 @@ def text_preprocessing(article, stop_words, lemmatizer):
     article = ' '.join([lemmatizer.lemmatize(word) for word in article.split() if word not in stop_words])  
     return article
 
-news_df = pd.read_csv("/Users/rishika/ai4allc6g3/news_dataset.csv")
+news_df = pd.read_csv("news_dataset.csv")
     
 stop_words = stopwords.words('english')
 lemmatizer = WordNetLemmatizer()
