@@ -4,6 +4,10 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import string
+from pyngrok import ngrok
+
+#Url: https://fd4a-128-84-126-78.ngrok-free.app/
+
 
 nltk.download('stopwords')
 nltk.download('punkt')
@@ -46,3 +50,4 @@ if st.session_state.latest_article:
     user_text, pred = st.session_state.latest_article
     st.write(f"**User Input:** {user_text}")
     st.write(f"**Probability Input is AI-Generated:** {pred}")
+
