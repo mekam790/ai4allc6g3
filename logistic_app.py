@@ -6,7 +6,7 @@ from nltk.stem import WordNetLemmatizer
 import string
 from pyngrok import ngrok
 
-#Url: https://fd4a-128-84-126-78.ngrok-free.app/
+#Url: https://4a0d-128-84-126-78.ngrok-free.app/
 
 
 nltk.download('stopwords')
@@ -18,6 +18,7 @@ stop_words = stopwords.words('english')
 
 model = joblib.load('models/logistic_model.pkl')
 vectorizer = joblib.load('models/tfidf_vectorizer.pkl')
+
 
 st.title("AI-Generated News Classifier")
 st.write("""Enter an article and the app will return the probability that the 
@@ -49,5 +50,6 @@ if st.button("Classify"):
 if st.session_state.latest_article:
     user_text, pred = st.session_state.latest_article
     st.write(f"**User Input:** {user_text}")
-    st.write(f"**Probability Input is AI-Generated:** {pred}")
+    color = "red" if pred > 0.5 else "green"
+    st.markdown(f"<p style='color: {color};'>**Probability Input is AI-Generated:** {pred}</p>", unsafe_allow_html=True)
 
