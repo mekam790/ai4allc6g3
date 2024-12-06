@@ -1,6 +1,6 @@
 [theme]
 primaryColor = "blue"
-backgroundColor = "black"
-secondaryBackgroundColor = "gray"
-textColor = "white"
+backgroundColor = "white"
+secondaryBackgroundColor = "lightblue"
+textColor = "darkblue"
 font = "monospace"
